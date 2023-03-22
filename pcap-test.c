@@ -56,38 +56,38 @@ int main(int argc, char* argv[]) {
 		const struct libnet_tcp_hdr * tcp = (const struct libnet_tcp_hdr *)(ipv4 + sizeof(*ipv4));
 		
 		// check packet type : 0800
-		if(ntohs(hdr->ether_type) != 0x800)
+		if(ntohs(ethernet->ether_type) != 0x800)
 		{
 			printf("wrong packet type");
 			exit(0);
 		}
 
 		// check protocol type : 6
-		if(ipv4->protocol != 6)
+		if(ipv4->ip_p != 6)
 		{
 			printf("it is not TCP");
 			exit(0);
 		}
 
 		// ethernet header src/dst mac
-		printf("Ethernet Header Source MAC : %2x.%2x.%2x.%2x.%2x.%2x\n
-				Ethernet Header Destination MAC : %2x.%2x.%2x.%2x.%2x.%2x\n", ethernet->ether_shost[0], ethernet->ether_shost[1], ethernet->ether_shost[2], ethernet->ether_shost[3], ethernet->ether_shost[4], ethernet->ether_shost[5],
+		printf("Ethernet Header Source MAC : %2x.%2x.%2x.%2x.%2x.%2x \nEthernet Header Destination MAC : %2x.%2x.%2x.%2x.%2x.%2x\n", ethernet->ether_shost[0], ethernet->ether_shost[1], ethernet->ether_shost[2], ethernet->ether_shost[3], ethernet->ether_shost[4], ethernet->ether_shost[5],
 				ethernet->ether_dhost[0], ethernet->ether_dhost[1], ethernet->ether_dhost[2], ethernet->ether_dhost[3], ethernet->ether_dhost[4], ethernet->ether_dhost[5]);
 
 		// IP header src/dst ip
-		printf("IP Header Source IP : %d.%d.%d.%d\n
-				IP Header Destination IP : %d.%d.%d.%d\n", ((ipv4->ip_src) >> 0) & 0xFF, ((ipv4->ip_src) >> 8) & 0xFF, ((ipv4->ip_src) >> 16) & 0xFF, ((ipv4->ip_src) >> 24) & 0xFF,
-				 ((ipv4->ip_dst) >> 0) & 0xFF, ((ipv4->ip_dst) >> 8) & 0xFF, ((ipv4->ip_dst) >> 16) & 0xFF, ((ipv4->ip_dst) >> 24) & 0xFF);
+		char * srcIP;
+		char * dstIP;
+		srcIP = strdup(inet_ntoa(ipv4->ip_src));
+		dstIP = strdup(inet_ntoa(ipv4->ip_dst));
+		printf("IP Header Source IP : %s\nIP Header Destination IP : %s\n", srcIP, dstIP);
 		
 		// TCP header src/dst port
-		printf("TCP Header Source Port : %d\n
-				TCP Header Destination Port : %d\n", noths(tcp->th_sport), noths(tcp->th_dport));
+		printf("TCP Header Source Port : %d\nTCP Header Destination Port : %d\n", ntohs(tcp->th_sport), ntohs(tcp->th_dport));
 
 		// data hexadecimal value
 		uint32_t dataLen;
 		int i;
 		dataLen = ipv4->ip_len - sizeof(*ipv4) -tcp->th_off * 4;
-		if(datLen < 10)
+		if(dataLen < 10)
 		{
 			for(i=0;i<dataLen;i++)
 			{
